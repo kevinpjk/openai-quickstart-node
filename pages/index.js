@@ -3,32 +3,22 @@ import { useState } from "react";
 import styles from "./index.module.css";
 
 export default function Home() {
-  const [animalInput, setAnimalInput] = useState("");
+  const [promptInput, setPromptInput] = useState("");
   const [result, setResult] = useState();
 
   async function onSubmit(event) {
     event.preventDefault();
-    try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ animal: animalInput }),
-      });
-
-      const data = await response.json();
-      if (response.status !== 200) {
-        throw data.error || new Error(`Request failed with status ${response.status}`);
-      }
-
-      setResult(data.result);
-      setAnimalInput("");
-    } catch(error) {
-      // Consider implementing your own error handling logic here
-      console.error(error);
-      alert(error.message);
-    }
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ promptInput: promptInput }),
+    });
+    let data = await response.json();
+    console.log("DATA", data);
+    setResult(data.result);
+    setPromptInput("");
   }
 
   return (
@@ -40,18 +30,28 @@ export default function Home() {
 
       <main className={styles.main}>
         <img src="/dog.png" className={styles.icon} />
-        <h3>Name my pet</h3>
+        <h3>Code generator</h3>
         <form onSubmit={onSubmit}>
           <input
             type="text"
-            name="animal"
-            placeholder="Enter an animal"
-            value={animalInput}
-            onChange={(e) => setAnimalInput(e.target.value)}
+            name="prompt"
+            placeholder="Enter a prompt"
+            value={promptInput}
+            onChange={(e) => setPromptInput(e.target.value)}
           />
-          <input type="submit" value="Generate names" />
+          <input type="submit" value="Generate response" />
         </form>
-        <div className={styles.result}>{result}</div>
+        {/* embed a code editor */}
+        <div className={styles.code}>
+          <textarea
+            id="code"
+            rows="20"
+            cols="70"
+            value={result}
+            // onChange={(e) => setResult(e.target.value)}
+          ></textarea>
+        </div>
+        {/* <div className={styles.code}>{result}</div> */}
       </main>
     </div>
   );
